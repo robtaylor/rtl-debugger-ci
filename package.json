@@ -2,10 +2,15 @@
   "name": "rtl-debugger",
   "displayName": "RTL Debugger",
   "description": "Debugger for HDLs supported by the open-source toolchain: Amaranth, Verilog, VHDL, ...",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "engines": {
     "vscode": "^1.84.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amaranth/rtl-debugger.git"
+  },
+  "publisher": "yowasp",
   "categories": [
     "Debuggers"
   ],
@@ -19,7 +24,9 @@
       "$comment": "UPSTREAM: Unfortunately there is no way to control the formatting of the extension name within the setting title. See microsoft/vscode#103592",
       "properties": {
         "rtlDebugger.command": {
-          "type": ["array"],
+          "type": [
+            "array"
+          ],
           "items": {
             "type": "string"
           },
@@ -39,7 +46,11 @@
           "description": "Specifies the port that the CXXRTL agent within the debug session is listening at."
         },
         "rtlDebugger.displayStyle": {
-          "enum": ["Verilog", "VHDL", "Python"],
+          "enum": [
+            "Verilog",
+            "VHDL",
+            "Python"
+          ],
           "default": "Verilog",
           "markdownDescription": "Specifies the display format for variables."
         }
@@ -158,22 +169,29 @@
     }
   },
   "scripts": {
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "tsc": "tsc -p .",
     "lint": "eslint src --ext ts",
-    "pretest": "npm run compile && npm run lint",
-    "test": "vscode-test",
-    "vscode:prepublish": "npm run compile"
+    "esbuild": "npm run esbuild:browser && npm run esbuild:node",
+    "esbuild:browser": "esbuild ./src/extension.ts --bundle --outdir=out/browser/ --sourcemap --external:vscode --format=cjs --platform=browser --define:USE_WEB_WORKERS=true",
+    "esbuild:browser:watch": "npm run esbuild:browser -- --watch",
+    "esbuild:node": "esbuild ./src/extension.ts --bundle --outdir=out/node/ --sourcemap --external:vscode --format=cjs --platform=node --define:USE_WEB_WORKERS=false",
+    "esbuild:node:watch": "npm run esbuild:node -- --watch",
+    "vscode:prepublish": "npm run esbuild:browser && npm run esbuild:node",
+    "browser": "vscode-test-web --coi --browserOption=--remote-debugging-port=9222 --extensionDevelopmentPath=. test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.84.0",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
+    "@types/vscode": "^1.84.0",
     "@typescript-eslint/eslint-plugin": "^6.13.1",
     "@typescript-eslint/parser": "^6.13.1",
+    "@vscode/test-cli": "^0.0.4",
+    "@vscode/test-electron": "^2.3.8",
+    "@vscode/test-web": "^0.0.50",
+    "@vscode/vsce": "^3.1.0",
+    "esbuild": "^0.19.9",
     "eslint": "^8.54.0",
     "typescript": "^5.3.2",
-    "@vscode/test-cli": "^0.0.4",
-    "@vscode/test-electron": "^2.3.8"
+    "net": "^1.0.2"
   }
 }
